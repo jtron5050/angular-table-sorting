@@ -1,0 +1,4 @@
+table tr th {
+    user-select: none;
+    cursor: pointer;
+}

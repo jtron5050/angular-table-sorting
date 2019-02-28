@@ -1,0 +1,14 @@
+<table cdk-table [dataSource]="dataSource" tableSort>
+  <ng-container cdkColumnDef="id">
+    <th cdk-header-cell *cdkHeaderCellDef tableSortHeader> id </th>
+    <td cdk-cell *cdkCellDef="let row"> {{row.id}} </td>
+  </ng-container>
+
+  <ng-container cdkColumnDef="name">
+    <th cdk-header-cell *cdkHeaderCellDef (click)="sort('name')"> name</th>
+    <td cdk-cell *cdkCellDef="let row"> {{row.name}} </td>
+  </ng-container>
+
+  <tr cdk-header-row *cdkHeaderRowDef="['id', 'name']"></tr>
+  <tr cdk-row *cdkRowDef="let row; columns: ['id', 'name']"></tr>
+</table>
