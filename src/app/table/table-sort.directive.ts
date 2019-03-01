@@ -1,4 +1,6 @@
-import { Directive, Component, Optional, HostListener, Input } from '@angular/core';
+import { Directive, Component, Optional, HostListener, Input, Output } from '@angular/core';
+import { EventEmitter } from '@angular/core';
+import { Sort, SortDirection } from './table.component';
 
 export interface TableSortable {
   id: string;
@@ -8,15 +10,20 @@ export interface TableSortable {
   selector: '[tableSort]'
 })
 export class TableSort {
+  @Output('sortChange') readonly sortChange: EventEmitter<Sort> = new EventEmitter<Sort>();
+  active: string;
+  direction: SortDirection;
 
   constructor() { }
 
   sort(sortable: TableSortable) {
+    console.log('begin sort');
+    console.log('id = ' + sortable.id);
+    this.active = sortable.id;
+    this.direction = this.direction === 'asc' ? 'desc': 'asc';
 
-  }
-
-  log() {
-    console.log('im alive');
+    this.sortChange.emit({field: sortable.id, direction: this.direction});
+    console.log('end sort');
   }
 }
 
@@ -25,13 +32,13 @@ export class TableSort {
   selector: '[tableSortHeader]'
 })
 export class TableSortHeader  implements TableSortable{
-  @Input('table-sort-header') id: string;
+  @Input('tableSortHeader') id: string;
 
   constructor(@Optional() public _sort: TableSort) {
-    _sort.log();
+    
   }
 
   @HostListener('click') handleClick() {
-    
+    this._sort.sort(this);
   }
 }

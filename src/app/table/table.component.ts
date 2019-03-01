@@ -1,7 +1,8 @@
-import { Component, OnInit, Directive } from '@angular/core';
+import { Component, OnInit, Directive, ViewChild } from '@angular/core';
 import { BehaviorSubject, Observable, merge } from 'rxjs';
 import { DataSource } from "@angular/cdk/table";
 import { map } from "rxjs/operators";
+import { TableSort } from './table-sort.directive';
 
 export interface ClientData {
   id: number;
@@ -46,40 +47,42 @@ export class HighlightDirective {
 export class TableComponent implements OnInit {
   dataSource: ClientDataSource;
 
-  constructor() { }
+  @ViewChild(TableSort) sort: TableSort;
 
+  constructor() { 
+    
+  }
+  
   ngOnInit() {
-    this.dataSource = new ClientDataSource({field: 'id', direction: 'desc'});
+    this.dataSource = new ClientDataSource(exampleData, this.sort);
   }
 
-  sort(fieldName: string) {
-    const currentSort = this.dataSource.sortChange.value;
-    let d: Sort = {field: fieldName, direction: ''};
-    if (currentSort.field === fieldName) {
-      d.direction = currentSort.direction === 'asc' ? 'desc': 'asc';
-    }
+  // sort(fieldName: string) {
+  //   const currentSort = this.dataSource.sortChange.value;
+  //   let d: Sort = {field: fieldName, direction: ''};
+  //   if (currentSort.field === fieldName) {
+  //     d.direction = currentSort.direction === 'asc' ? 'desc': 'asc';
+  //   }
 
-    this.dataSource.sortChange.next(d);
-  }
+  //   this.dataSource.sortChange.next(d);
+  // }
 }
 
 
 
 export class ClientDataSource  extends DataSource<ClientData> {
   dataChange: BehaviorSubject<ClientData[]> = new BehaviorSubject<ClientData[]>([]);
-  sortChange: BehaviorSubject<Sort>;
+  //sortChange: BehaviorSubject<Sort>;
 
-  constructor(private _sort: Sort) {
+  constructor(data: ClientData[], private _sort: TableSort) {
     super();
-    this.sortChange = new BehaviorSubject<Sort>(_sort);
-
-    this.dataChange.next(exampleData);
+    this.dataChange.next(data);
   }
 
   connect(): Observable<ClientData[]> {
     const changes = [
       this.dataChange,
-      this.sortChange
+      this._sort.sortChange
     ];
 
     return merge(...changes).pipe(map(() => this.getSortedData()));
@@ -89,11 +92,23 @@ export class ClientDataSource  extends DataSource<ClientData> {
   disconnect() {
   }
 
+  
+  // get sort() : TableSort | null {
+  //   return this._sort;
+  // }
+  
+  // set sort(v : TableSort | null) {
+  //   this._sort = v;
+
+  // }
+  // private _sort: TableSort | null;
+  
+
   private getSortedData(): ClientData[] {
     const data = [...exampleData];
-    const sort = this.sortChange.value;
+    const active = this._sort.active;
     return data.sort((a: ClientData, b: ClientData) => {
-      return (a[sort.field] < b[sort.field] ? -1 : 1) * (sort.direction === 'asc' ? 1 : -1);
+      return (a[active] < b[active] ? -1 : 1) * (this._sort.direction === 'asc' ? 1 : -1);
     });
   }
 }
