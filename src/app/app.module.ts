@@ -3,10 +3,9 @@ import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
 import { TableModule } from './table/table.module';
 
-
 @NgModule({
   declarations: [
-    AppComponent,
+    AppComponent
   ],
   imports: [
     BrowserModule,
